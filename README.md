@@ -4,25 +4,28 @@
 
 ![version](https://img.shields.io/badge/version-1.0.0--release--go-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
-![engine](https://img.shields.io/badge/engines-6-purple)
+![go](https://img.shields.io/badge/go-1.24%20%7C%201.25%20%7C%201.26-00ADD8)
+![engines](https://img.shields.io/badge/engines-6-purple)
 ![status](https://img.shields.io/badge/status-stable-brightgreen)
-![CI](https://github.com/RE-Cat/MatchStar/actions/workflows/ci.yml/badge.svg)
-![Release](https://github.com/RE-Cat/MatchStar/actions/workflows/release.yml/badge.svg)
-![Go](https://img.shields.io/badge/go-1.24%20%7C%201.25%20%7C%201.26-00ADD8)
 
-## What is MatchStar?
+MatchStar is a multi-engine analysis language for structured text.
+Six independent engines cooperate to turn source code, config,
+logs and protocols into a queryable flat state.
 
-MatchStar is a multi-engine analysis language.
-6 engines cooperate to analyze structured text (code, config, logs).
+[📖 Read the Specification](https://<user>.github.io/matchstar/)
+
+---
 
 ## Engines
 
-- **Match** — Token-by-token mode
-- **Deep** — Paired-structure mode
-- **Capture** — Regular extraction mode
-- **Capture_Semantics** — Semantic mode
-- **Star** — Direction-finding mode
-- **Any** — Mixed mode
+| # | Engine | Mode |
+|---|--------|------|
+| 1 | `Match` | Token-by-token |
+| 2 | `Deep` | Paired-structure |
+| 3 | `Capture` | Regular extraction |
+| 4 | `Capture_Semantics` | Semantic |
+| 5 | `Star` | Direction-finding |
+| 6 | `Any` | Mixed |
 
 ## What can we do?
 
@@ -33,16 +36,30 @@ MatchStar is a multi-engine analysis language.
 - Structured analysis
 - More analysis
 
-## Usage
+## Quick start
 
-```bash
-go build -o MatchStar MatchStar.go
-./MatchStar -demo
-./MatchStar -help
-./MatchStar -v
-```
+    go build -o matchstar matchstar.go
 
-##License
+    ./matchstar -demo
+    ./matchstar -help
+    ./matchstar -v
+    ./matchstar -r rules.ms -i "input"
+
+## Install
+
+### From source
+
+    go install github.com/<user>/matchstar@latest
+
+### From release
+
+Download the binary for your platform from the
+[Releases](https://github.com/<user>/matchstar/releases) page.
+
+## License
+
 MIT License — see [LICENSE](LICENSE) for details.
 
-MatchStar has no upper limit.
+---
+
+**MatchStar has no upper limit.**
