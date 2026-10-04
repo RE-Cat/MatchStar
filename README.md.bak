@@ -1,18 +1,18 @@
-# MatchStar
+# Starlang
 
-**MatchStar 1.0.0-release-go** — Multi-Engine Analysis Language (MEAL)
+**Starlang 1.0.0-release-go** — Multi-Engine Analysis Language (MEAL)
 
 ![version](https://img.shields.io/badge/version-1.0.0--release--go-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![engine](https://img.shields.io/badge/engines-6-purple)
 ![status](https://img.shields.io/badge/status-stable-brightgreen)
-![CI](https://github.com/RE-Cat/MatchStar/actions/workflows/ci.yml/badge.svg)
-![Release](https://github.com/RE-Cat/MatchStar/actions/workflows/release.yml/badge.svg)
+![CI](https://github.com/RE-Cat/Starlang/actions/workflows/ci.yml/badge.svg)
+![Release](https://github.com/RE-Cat/Starlang/actions/workflows/release.yml/badge.svg)
 ![Go](https://img.shields.io/badge/go-1.24%20%7C%201.25%20%7C%201.26-00ADD8)
 
-## What is MatchStar?
+## What is Starlang?
 
-MatchStar is a multi-engine analysis language.
+Starlang is a multi-engine analysis language.
 6 engines cooperate to analyze structured text (code, config, logs).
 
 ## Engines
@@ -36,13 +36,13 @@ MatchStar is a multi-engine analysis language.
 ## Usage
 
 ```bash
-go build -o MatchStar MatchStar.go
-./MatchStar -demo
-./MatchStar -help
-./MatchStar -v
+go build -o starlang starlang.go
+./starlang -demo
+./starlang -help
+./starlang -v
 ```
 
 ##License
 MIT License — see [LICENSE](LICENSE) for details.
 
-MatchStar has no upper limit.
+Starlang has no upper limit.

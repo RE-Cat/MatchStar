@@ -1,4 +1,4 @@
-// Copyright (c) 2026 Starlang Contributors
+// Copyright (c) 2026 MatchStar Contributors
 // SPDX-License-Identifier: MIT
 package main
 
@@ -17,7 +17,7 @@ import (
 )
 
 // ============================================================
-// Starlang 1.0.0-release-go
+// MatchStar 1.0.0-release-go
 // Multi-Engine Analysis Language (MEAL)
 //
 // State spec: target/value/Lines.start/token.start/token.end/number
@@ -32,12 +32,11 @@ import (
 
 // ---------- 1. State store ----------
 
-// undoEntry records one write op for efficient rollback (avoids full map copy)
 type undoEntry struct {
 	key      string
 	oldValue interface{}
 	existed  bool
-	kind     byte // 0=data, 1=id, 2=alias
+	kind     byte
 }
 
 type StateStore struct {
@@ -48,25 +47,24 @@ type StateStore struct {
 	trace   bool
 	parent  *StateStore
 	bodyID  string
-	undo    []undoEntry // change log, supports O(changes) rollback
+	undo    []undoEntry
 }
 
-// Soft ANSI colors (low saturation / low brightness)
+// Soft ANSI colors
 const (
 	Reset = "\033[0m"
 	Bold  = "\033[1m"
 	Dim   = "\033[2m"
-	Gray  = "\033[90m" // bright gray, replaces harsh white
+	Gray  = "\033[90m"
 
-	SoftCyan    = "\033[38;5;109m" // soft cyan
-	SoftGreen   = "\033[38;5;108m" // soft green
-	SoftBlue    = "\033[38;5;110m" // soft blue
-	SoftYellow  = "\033[38;5;180m" // soft yellow (beige-ish)
-	SoftRed     = "\033[38;5;174m" // soft red (muted)
-	SoftMagenta = "\033[38;5;139m" // soft magenta
+	SoftCyan    = "\033[38;5;109m"
+	SoftGreen   = "\033[38;5;108m"
+	SoftBlue    = "\033[38;5;110m"
+	SoftYellow  = "\033[38;5;180m"
+	SoftRed     = "\033[38;5;174m"
+	SoftMagenta = "\033[38;5;139m"
 )
 
-// colorize is disabled when output is not a TTY or NO_COLOR is set
 var colorize = func() bool {
 	if os.Getenv("NO_COLOR") != "" {
 		return false
@@ -78,7 +76,6 @@ var colorize = func() bool {
 	return fi != nil && (fi.Mode()&os.ModeCharDevice) != 0
 }()
 
-// C wraps s with the given color (returns s unchanged if colors disabled)
 func C(s, color string) string {
 	if !colorize || color == "" {
 		return s
@@ -119,7 +116,6 @@ func (s *StateStore) resolve(k string) string {
 	return k
 }
 
-// markUndo records old value before write, to support later Rollback
 func (s *StateStore) markUndo(key string, kind byte) {
 	switch kind {
 	case 0:
@@ -271,12 +267,10 @@ func (s *StateStore) Clear() {
 	s.undo = s.undo[:0]
 }
 
-// Checkpoint returns the current undo log length (rollback point)
 func (s *StateStore) Checkpoint() int {
 	return len(s.undo)
 }
 
-// Rollback rolls back to the given checkpoint (O(changes), much faster than full copy)
 func (s *StateStore) Rollback(cp int) {
 	for i := len(s.undo) - 1; i >= cp; i-- {
 		e := s.undo[i]
@@ -304,7 +298,6 @@ func (s *StateStore) Rollback(cp int) {
 	s.undo = s.undo[:cp]
 }
 
-// Snapshot kept for compatibility (full copy, debug/export only)
 func (s *StateStore) Snapshot() map[string]interface{} {
 	cp := make(map[string]interface{}, len(s.data))
 	for k, v := range s.data {
@@ -313,7 +306,6 @@ func (s *StateStore) Snapshot() map[string]interface{} {
 	return cp
 }
 
-// Restore kept for compatibility
 func (s *StateStore) Restore(snap map[string]interface{}) {
 	s.data = snap
 	s.undo = s.undo[:0]
@@ -567,7 +559,6 @@ func (l *Lexer) advance() rune {
 }
 
 func (l *Lexer) Lex() []Token {
-	// Pre-allocate: roughly chars/4 tokens, reduces growth
 	toks := make([]Token, 0, len(l.input)/4+8)
 	for l.pos < len(l.input) {
 		r := l.peek()
@@ -580,7 +571,6 @@ func (l *Lexer) Lex() []Token {
 			if tok, ok := l.lexEscape(); ok {
 				toks = append(toks, tok)
 			} else {
-				// unclosed | treated as a normal symbol
 				s := string(r)
 				toks = append(toks, Token{Text: s, Pos: l.pos, Class: classifySymbol(s), Line: l.line, Col: l.col})
 				l.advance()
@@ -592,7 +582,6 @@ func (l *Lexer) Lex() []Token {
 		case unicode.IsLetter(r) || r == '_':
 			toks = append(toks, l.lexIdent())
 		default:
-			// Multi-char operators: match longest first
 			if n := l.matchOperator(); n > 0 {
 				start, sl, sc := l.pos, l.line, l.col
 				text := string(l.input[l.pos : l.pos+n])
@@ -610,29 +599,26 @@ func (l *Lexer) Lex() []Token {
 	return toks
 }
 
-// matchOperator returns the matched operator length (0 = no match)
-// Supports: <<-->>(6) <<->>(5) <-->(4) -->(3) ==>(3) <->(3) and 2-char operators
 func (l *Lexer) matchOperator() int {
 	remain := len(l.input) - l.pos
 	in := l.input
 	p := l.pos
 	if remain >= 6 && in[p] == '<' && in[p+1] == '<' && in[p+2] == '-' && in[p+3] == '-' && in[p+4] == '>' && in[p+5] == '>' {
-		return 6 // <<-->>
+		return 6
 	}
 	if remain >= 5 && in[p] == '<' && in[p+1] == '<' && in[p+2] == '-' && in[p+3] == '>' && in[p+4] == '>' {
-		return 5 // <<->>
+		return 5
 	}
 	if remain >= 4 {
-		// <-->
 		if in[p] == '<' && in[p+1] == '-' && in[p+2] == '-' && in[p+3] == '>' {
 			return 4
 		}
 	}
 	if remain >= 3 {
 		a, b, c := in[p], in[p+1], in[p+2]
-		if (a == '-' && b == '-' && c == '>') || // -->
-			(a == '=' && b == '=' && c == '>') || // ==>
-			(a == '<' && b == '-' && c == '>') { // <->
+		if (a == '-' && b == '-' && c == '>') ||
+			(a == '=' && b == '=' && c == '>') ||
+			(a == '<' && b == '-' && c == '>') {
 			return 3
 		}
 	}
@@ -647,14 +633,13 @@ func (l *Lexer) matchOperator() int {
 
 func (l *Lexer) lexString() Token {
 	start, sl, sc := l.pos, l.line, l.col
-	l.advance() // skip opening "
+	l.advance()
 	for l.pos < len(l.input) && l.peek() != '"' {
 		l.advance()
 	}
 	if l.pos < len(l.input) {
-		l.advance() // skip closing "
+		l.advance()
 	}
-	// Slice directly, avoid intermediate rune slice allocation
 	return Token{Text: string(l.input[start:l.pos]), Pos: start, Class: "Str", Line: sl, Col: sc}
 }
 
@@ -672,7 +657,7 @@ func (l *Lexer) lexSingleQuote() Token {
 
 func (l *Lexer) lexEscape() (Token, bool) {
 	start, sl, sc := l.pos, l.line, l.col
-	l.advance() // skip opening |
+	l.advance()
 	for l.pos < len(l.input) && l.peek() != '|' {
 		l.advance()
 	}
@@ -681,8 +666,7 @@ func (l *Lexer) lexEscape() (Token, bool) {
 		return Token{}, false
 	}
 	end := l.pos
-	l.advance() // skip closing |
-	// content excludes both | delimiters
+	l.advance()
 	return Token{Text: string(l.input[start+1 : end]), Pos: start, Class: "Text", Line: sl, Col: sc}, true
 }
 
@@ -1164,7 +1148,6 @@ func isFloat(s string) bool {
 	return hasDot
 }
 
-// unquote strips surrounding quotes (single or double)
 func unquote(s string) (string, bool) {
 	n := len(s)
 	if n >= 2 {
@@ -1431,7 +1414,7 @@ func (p *Parser) parseTopDef() error {
 		}
 		inner = strings.TrimSpace(rhs[1 : len(rhs)-1])
 	} else {
-		return fmt.Errorf("line %d: def value must be {…} or […]", lineno)
+		return fmt.Errorf("line %d: def value must be {...} or [...]", lineno)
 	}
 
 	var items []string
@@ -3405,7 +3388,6 @@ type TestResult struct {
 }
 
 func resetKeywords(cfg *Config) {
-	// Clear and restore defaults, then merge user-defined, avoiding global pollution
 	for k := range builtinKeyword {
 		delete(builtinKeyword, k)
 	}
@@ -3529,12 +3511,12 @@ func usage() {
 	desc := func(s string) string { return C(s, SoftBlue) }
 	dim := func(s string) string { return C(s, Dim+Gray) }
 
-	fmt.Fprintln(os.Stderr, title("Starlang 1.0.0-release-go"))
+	fmt.Fprintln(os.Stderr, title("MatchStar 1.0.0-release-go"))
 	fmt.Fprintln(os.Stderr, dim("Multi-Engine Analysis Language (MEAL)"))
 	fmt.Fprintln(os.Stderr)
 
 	fmt.Fprintln(os.Stderr, head("Usage:"))
-	fmt.Fprintln(os.Stderr, "  sl [options] [rule-file]")
+	fmt.Fprintln(os.Stderr, "  ms [options] [rule-file]")
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintf(os.Stderr, "  %s    %s\n", opt("-r <file>"), desc("rule file"))
 	fmt.Fprintf(os.Stderr, "  %s    %s\n", opt("-f <file>"), desc("script file"))
@@ -3603,7 +3585,7 @@ func usage() {
 }
 
 func version() {
-	fmt.Printf("%s\n", C("Starlang 1.0.0-release-go", Bold+SoftCyan))
+	fmt.Printf("%s\n", C("MatchStar 1.0.0-release-go", Bold+SoftCyan))
 	fmt.Printf("%s\n\n", C("Build by golang", Dim+Gray))
 
 	fmt.Printf("%s\n", C("Multi-Engine", SoftYellow))
@@ -3622,12 +3604,12 @@ func version() {
 	fmt.Printf("  %s\n", C("Structured analysis", SoftBlue))
 	fmt.Printf("  %s\n\n", C("More analysis", SoftBlue))
 
-	fmt.Printf("%s\n", C("What is Starlang?", SoftYellow))
+	fmt.Printf("%s\n", C("What is MatchStar?", SoftYellow))
 	fmt.Printf("  %s\n", C("A DSL", SoftMagenta))
 	fmt.Printf("  %s\n", C("An analysis language", SoftMagenta))
 	fmt.Printf("  %s\n\n", C("A non-general-purpose language", SoftMagenta))
 
-	fmt.Printf("%s\n", C("Starlang has no upper limit.", SoftRed))
+	fmt.Printf("%s\n", C("MatchStar has no upper limit.", SoftRed))
 }
 
 // ---------- 10. Main ----------
@@ -3664,7 +3646,7 @@ func main() {
 	} else {
 		cfg, err = ParseString(demoSL)
 		if err == nil && !*jsonOut && !*quiet {
-			os.WriteFile("demo.sl", []byte(demoSL), 0644)
+			os.WriteFile("demo.ms", []byte(demoSL), 0644)
 		}
 	}
 	if err != nil {

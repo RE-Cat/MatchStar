@@ -28,10 +28,10 @@ jobs:
           mkdir -p dist
           build() {
             local os=$1 arch=$2 ext=$3
-            local out="dist/starlang-${os}-${arch}${ext}"
+            local out="dist/MatchStar-${os}-${arch}${ext}"
             echo "-> $out"
             GOOS=$os GOARCH=$arch CGO_ENABLED=0 \
-              go build -trimpath -ldflags "-s -w" -o "$out" starlang.go
+              go build -trimpath -ldflags "-s -w" -o "$out" MatchStar.go
           }
           build linux   amd64 ""
           build linux   arm64 ""
@@ -51,9 +51,9 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Starlang ${{ github.ref_name }}
+          name: MatchStar ${{ github.ref_name }}
           body: |
-            ## Starlang ${{ github.ref_name }}
+            ## MatchStar ${{ github.ref_name }}
 
             Multi-Engine Analysis Language (MEAL)
 
@@ -61,13 +61,13 @@ jobs:
 
             | Platform | File |
             |----------|------|
-            | Linux amd64   | `starlang-linux-amd64` |
-            | Linux arm64   | `starlang-linux-arm64` |
-            | Linux arm     | `starlang-linux-arm` |
-            | macOS amd64   | `starlang-darwin-amd64` |
-            | macOS arm64   | `starlang-darwin-arm64` |
-            | Windows amd64 | `starlang-windows-amd64.exe` |
-            | Windows arm64 | `starlang-windows-arm64.exe` |
+            | Linux amd64   | `MatchStar-linux-amd64` |
+            | Linux arm64   | `MatchStar-linux-arm64` |
+            | Linux arm     | `MatchStar-linux-arm` |
+            | macOS amd64   | `MatchStar-darwin-amd64` |
+            | macOS arm64   | `MatchStar-darwin-arm64` |
+            | Windows amd64 | `MatchStar-windows-amd64.exe` |
+            | Windows arm64 | `MatchStar-windows-arm64.exe` |
 
             ### Verify
 
