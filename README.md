@@ -4,9 +4,11 @@
 
 ![version](https://img.shields.io/badge/version-1.0.0--release--go-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
-![go](https://img.shields.io/badge/go-1.26+-00ADD8)
 ![engine](https://img.shields.io/badge/engines-6-purple)
 ![status](https://img.shields.io/badge/status-stable-brightgreen)
+![CI](https://github.com/RE-Cat/Starlang/actions/workflows/ci.yml/badge.svg)
+![Release](https://github.com/RE-Cat/Starlang/actions/workflows/release.yml/badge.svg)
+![Go](https://img.shields.io/badge/go-1.24%20%7C%201.25%20%7C%201.26-00ADD8)
 
 ## What is Starlang?
 
