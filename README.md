@@ -2,6 +2,12 @@
 
 **Starlang 1.0.0-release-go** — Multi-Engine Analysis Language (MEAL)
 
+![version](https://img.shields.io/badge/version-1.0.0--release--go-blue)
+![license](https://img.shields.io/badge/license-MIT-green)
+![go](https://img.shields.io/badge/go-1.26+-00ADD8)
+![engine](https://img.shields.io/badge/engines-6-purple)
+![status](https://img.shields.io/badge/status-stable-brightgreen)
+
 ## What is Starlang?
 
 Starlang is a multi-engine analysis language.
