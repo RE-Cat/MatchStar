@@ -1,31 +1,3 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go
-
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-
-jobs:
-
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.20'
-
-    - name: Build
-      run: go build -v ./...
-
-    - name: Test
-      run: go test -v ./...
 name: Release
 
 on:
@@ -50,7 +22,7 @@ jobs:
         with:
           go-version: '1.26'
 
-      - name: Build matrix
+      - name: Build all platforms
         run: |
           set -e
           mkdir -p dist
@@ -70,13 +42,13 @@ jobs:
           build windows arm64 ".exe"
           ls -la dist/
 
-      - name: Checksum
+      - name: Checksums
         run: |
           cd dist
           sha256sum * > checksums.txt
           cat checksums.txt
 
-      - name: Release
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           name: Starlang ${{ github.ref_name }}
@@ -86,14 +58,22 @@ jobs:
             Multi-Engine Analysis Language (MEAL)
 
             ### Assets
-            - `starlang-linux-amd64`
-            - `starlang-linux-arm64`
-            - `starlang-linux-arm`
-            - `starlang-darwin-amd64`
-            - `starlang-darwin-arm64`
-            - `starlang-windows-amd64.exe`
-            - `starlang-windows-arm64.exe`
-            - `checksums.txt`
+
+            | Platform | File |
+            |----------|------|
+            | Linux amd64   | `starlang-linux-amd64` |
+            | Linux arm64   | `starlang-linux-arm64` |
+            | Linux arm     | `starlang-linux-arm` |
+            | macOS amd64   | `starlang-darwin-amd64` |
+            | macOS arm64   | `starlang-darwin-arm64` |
+            | Windows amd64 | `starlang-windows-amd64.exe` |
+            | Windows arm64 | `starlang-windows-arm64.exe` |
+
+            ### Verify
+
+            ```bash
+            sha256sum -c checksums.txt
+            ```
           files: dist/*
           draft: false
           prerelease: false
