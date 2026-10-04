@@ -29,8 +29,8 @@
     --light-sky:#d8e8f4;    --heavy-sky:#6aa0cc;
     --light-yellow:#faf0c8; --heavy-yellow:#d4a838;
 
-    --logo-red:#e63946; --logo-blue:#2a6fdb;
-    --logo-yellow:#f4c430; --logo-silver:#d6d6d6;
+    --star-gold:#f4c430;
+    --star-gold-deep:#d99e15;
 
     --r-group:16px;
     --r-bar:22px;
@@ -119,23 +119,40 @@
     gap:10px;
   }
 
+  /* 品牌 · SVG 星星 + 文字 */
   .brand {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
     font-family:'Nunito', sans-serif;
     font-weight:800;
-    font-size:20px;
+    font-size:19px;
     line-height:1;
-    letter-spacing:-0.03em;
-    display:inline-flex;
-    align-items:baseline;
+    letter-spacing:-0.025em;
     text-decoration:none;
     user-select:none;
     flex-shrink:0;
+    color:var(--ink);
+    transition:filter 0.15s var(--ease);
   }
-  .brand span { display:inline-block; }
-  .brand .n { color:var(--logo-red); }
-  .brand .e { color:var(--logo-blue); }
-  .brand .x { color:var(--logo-yellow); }
-  .brand .t { color:var(--logo-silver); }
+  .brand:hover { filter:brightness(1.1); }
+  .brand:active { filter:brightness(0.95); }
+
+  .brand-star {
+    width:22px;
+    height:22px;
+    flex-shrink:0;
+    display:block;
+    transition:transform 0.4s var(--ease);
+  }
+  .brand:hover .brand-star {
+    transform:rotate(72deg) scale(1.1);
+  }
+
+  .brand-text {
+    display:inline-block;
+    white-space:nowrap;
+  }
 
   .topbar-nav {
     display:flex;
@@ -776,19 +793,21 @@
   }
 
   .footer-brand {
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
     font-family:'Nunito', sans-serif;
     font-weight:800;
-    font-size:18px;
+    font-size:17px;
     line-height:1;
-    letter-spacing:-0.03em;
-    display:inline-flex;
-    align-items:baseline;
+    letter-spacing:-0.02em;
+    color:var(--ink);
   }
-  .footer-brand span { display:inline-block; }
-  .footer-brand .n { color:var(--logo-red); }
-  .footer-brand .e { color:var(--logo-blue); }
-  .footer-brand .x { color:var(--logo-yellow); }
-  .footer-brand .t { color:var(--logo-silver); }
+
+  .footer-brand .brand-star {
+    width:18px;
+    height:18px;
+  }
 
   .footer-links { display:flex; gap:8px; flex-wrap:wrap; }
 
@@ -824,7 +843,8 @@
     .cta-title { font-size:1.15rem; }
     .chapter { padding:20px 16px; }
     .topbar-inner { padding:0 8px 0 16px; }
-    .brand { font-size:18px; }
+    .brand { font-size:17px; }
+    .brand-star { width:20px; height:20px; }
     .nav-btn { padding:6px 10px; font-size:0.72rem; }
     .toc-btn svg { display:none; }
   }
@@ -836,17 +856,46 @@
       transition-duration:0.01ms !important;
       scroll-behavior:auto !important;
     }
+    .brand:hover .brand-star { transform:none !important; }
   }
 </style>
 </head>
 <body>
 
+<!-- ============================================================
+     顶栏
+     ============================================================ -->
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="#" id="brandBtn" aria-label="Starlang">
-      <span class="n">S</span><span class="e">t</span><span class="x">a</span><span class="t">r</span>
+      <svg class="brand-star" viewBox="0 0 24 24" aria-hidden="true">
+        <defs>
+          <linearGradient id="starGradTop" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffd970"/>
+            <stop offset="55%" stop-color="#f4c430"/>
+            <stop offset="100%" stop-color="#d99e15"/>
+          </linearGradient>
+        </defs>
+        <path d="M12 1.6
+                 L14.94 8.55
+                 L22.4 9.13
+                 L16.72 13.94
+                 L18.44 21.2
+                 L12 17.3
+                 L5.56 21.2
+                 L7.28 13.94
+                 L1.6 9.13
+                 L9.06 8.55 Z"
+              fill="url(#starGradTop)"
+              stroke="#d99e15"
+              stroke-width="0.6"
+              stroke-linejoin="round"/>
+      </svg>
+      <span class="brand-text">Starlang</span>
     </a>
+
     <nav class="topbar-nav" id="topbarNav" aria-label="Main"></nav>
+
     <button class="toc-btn" id="tocBtn" hidden aria-label="目录" aria-controls="tocDrawer" aria-expanded="false">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
@@ -859,6 +908,9 @@
   </div>
 </header>
 
+<!-- ============================================================
+     落地页
+     ============================================================ -->
 <section class="view" id="view-landing">
   <div class="view-inner">
 
@@ -940,6 +992,9 @@
   </div>
 </section>
 
+<!-- ============================================================
+     文档页
+     ============================================================ -->
 <section class="view" id="view-docs" hidden>
   <div class="view-inner">
 
@@ -967,10 +1022,36 @@
   </div>
 </section>
 
+<!-- ============================================================
+     页脚
+     ============================================================ -->
 <footer class="site-footer" id="siteFooter">
   <div class="footer-row">
     <div class="footer-brand">
-      <span class="n">S</span><span class="e">t</span><span class="x">a</span><span class="t">r</span>
+      <svg class="brand-star" viewBox="0 0 24 24" aria-hidden="true">
+        <defs>
+          <linearGradient id="starGradFoot" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffd970"/>
+            <stop offset="55%" stop-color="#f4c430"/>
+            <stop offset="100%" stop-color="#d99e15"/>
+          </linearGradient>
+        </defs>
+        <path d="M12 1.6
+                 L14.94 8.55
+                 L22.4 9.13
+                 L16.72 13.94
+                 L18.44 21.2
+                 L12 17.3
+                 L5.56 21.2
+                 L7.28 13.94
+                 L1.6 9.13
+                 L9.06 8.55 Z"
+              fill="url(#starGradFoot)"
+              stroke="#d99e15"
+              stroke-width="0.6"
+              stroke-linejoin="round"/>
+      </svg>
+      <span>Starlang</span>
     </div>
     <div class="footer-links">
       <a class="footer-link" href="#">规范</a>
@@ -984,6 +1065,9 @@
   </div>
 </footer>
 
+<!-- ============================================================
+     遮罩 + 目录抽屉
+     ============================================================ -->
 <div class="scrim" id="scrim"></div>
 
 <aside class="toc-drawer" id="tocDrawer" role="dialog" aria-modal="true" aria-labelledby="tocTitle">
